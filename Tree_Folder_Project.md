@@ -1,4 +1,4 @@
-# Cây thư mục chính:
+# Cây thư mục chính (cấu trúc của một Yocto Project khi clone về, ở đây là AGL build trên nền Yocto Poky):
 ```
 .
 ├── bsp
