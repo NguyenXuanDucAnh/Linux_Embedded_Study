@@ -1,3 +1,15 @@
+# Table of Contents
+
+- [Cây thư mục chính (cấu trúc của một Yocto Project khi clone về, ở đây là AGL build trên nền Yocto Poky)](#cây-thư-mục-chính-cấu-trúc-của-một-yocto-project-khi-clone-về-ở-đây-là-agl-build-trên-nền-yocto-poky)
+- [Cây thư mục image](#cây-thư-mục-image)
+- [Cây thư mục trong kernel](#cây-thư-mục-trong-kernel)
+- [Cây thư mục trong folder workspace/sources/linux-raspberrypi/arch/arm/boot/dts (chứa device tree)](#cây-thư-mục-trong-folder-workspacesourceslinux-raspberrypiarcharmbootdts-chứa-device-tree)
+- [Nội dung note bên trong một file device tree](#nội-dung-note-bên-trong-một-file-device-tree)
+- [Cây thư mục của thư mục drivers](#cây-thư-mục-của-thư-mục-drivers)
+  - [Trích một cấu trúc của một drivers, ở đây giả sử là driver của I2C](#trích-một-cấu-trúc-của-một-drivers-ở-đây-giả-sử-là-driver-của-i2c)
+  - [Nội dung trong file Makefile của drivers](#nội-dung-trong-file-makefile-của-drivers)
+- [Nội dung trong một file Makefile tổng của driver](#nội-dung-trong-một-file-makefile-tổng-của-driver)
+---
 # Cây thư mục chính (cấu trúc của một Yocto Project khi clone về, ở đây là AGL build trên nền Yocto Poky):
 ```
 .
@@ -1842,7 +1854,8 @@ bsp  external  meta-agl  meta-agl-demo  meta-agl-devel  meta-canutils  meta-cust
 ```
 
 ---
-# Nội dung note bên trong một file device tree, ở đây lấy ví dụ là file bcm2711-rpi-4-b.dts (file device tree source của raspberry pi 4 B):
+# Nội dung note bên trong một file device tree
+### ở đây lấy ví dụ là file bcm2711-rpi-4-b.dts (file device tree source của raspberry pi 4 B):
 ```
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
@@ -2184,7 +2197,7 @@ ata            bluetooth   comedi       cxl      dma-buf  fpga      hid      i2c
 atm            bus         connector    dax      edac     fsi       hsi      i3c         iommu         macintosh  memory    most      nubus  parisc  pinctrl  ps3       remoteproc  scsi   spi        tee      vdpa         visorbus  zorro
 
 ```
-+ trích một cấu trúc của một drivers, ở đây giả sử là driver của I2C:
+## trích một cấu trúc của một drivers, ở đây giả sử là driver của I2C:
 ```
 /media/admin1/SSD-480GB/AGL2204/AGL/quillback/raspberrypi4/workspace/sources/linux-raspberrypi/drivers/i2c$ tree -L 1
 .
@@ -2209,7 +2222,7 @@ atm            bus         connector    dax      edac     fsi       hsi      i3c
 
 ```
 
-+ Nội dung trong file Makefile của drivers:
+## Nội dung trong file Makefile của drivers:
 ```
 # SPDX-License-Identifier: GPL-2.0
 #
@@ -2237,7 +2250,10 @@ ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
 
 ---
 # Nội dung trong một file Makefile tổng của driver:
-```
+
+<details>
+<summary>Nhấp vào đây để xem nội dung Makefile</summary>
+```make
 # SPDX-License-Identifier: GPL-2.0
 #
 # Makefile for the Linux kernel device drivers.
@@ -2428,5 +2444,5 @@ obj-$(CONFIG_INTERCONNECT)	+= interconnect/
 obj-$(CONFIG_COUNTER)		+= counter/
 obj-$(CONFIG_MOST)		+= most/
 
-```
+</details> ```
 
