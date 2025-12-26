@@ -4,7 +4,7 @@
 - [Cây thư mục image](#cây-thư-mục-image)
 - [Cây thư mục trong kernel](#cây-thư-mục-trong-kernel)
 - [Cây thư mục trong folder workspace/sources/linux-raspberrypi/arch/arm/boot/dts (chứa device tree)](#cây-thư-mục-trong-folder-workspacesourceslinux-raspberrypiarcharmbootdts-chứa-device-tree)
-- [Nội dung note bên trong một file device tree](#nội-dung-note-bên-trong-một-file-device-tree)
+- [Nội dung node bên trong một file device tree](#nội-dung-node-bên-trong-một-file-device-tree)
 - [Cây thư mục của thư mục drivers](#cây-thư-mục-của-thư-mục-drivers)
   - [Trích một cấu trúc của một drivers, ở đây giả sử là driver của I2C](#trích-một-cấu-trúc-của-một-drivers-ở-đây-giả-sử-là-driver-của-i2c)
   - [Nội dung trong file Makefile của drivers](#nội-dung-trong-file-makefile-của-drivers)
@@ -1854,9 +1854,11 @@ bsp  external  meta-agl  meta-agl-demo  meta-agl-devel  meta-canutils  meta-cust
 ```
 
 ---
-# Nội dung note bên trong một file device tree
+# Nội dung node bên trong một file device tree
 ### ở đây lấy ví dụ là file bcm2711-rpi-4-b.dts (file device tree source của raspberry pi 4 B):
+
 ```
+	
 // SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 #include "bcm2711.dtsi"
@@ -2181,7 +2183,6 @@ bsp  external  meta-agl  meta-agl-demo  meta-agl-devel  meta-canutils  meta-cust
 &uart1 {
 	pinctrl-0 = <&uart1_pins>;
 };
-
 ```
 
 ---
