@@ -1,10 +1,12 @@
 
 # Biến .PHONY
 
-+ Sử dụng để 
++ Sử dụng để  khai báo các target này không phải là file thật trên hệ thống. Ví dụ nếu ta có một file trùng với một target trong make (giả sử ta có file rule1 nằm cùng cấp với Makefile). Vậy khi ta nhấn ```make rule1``` thì make sẽ thực thi vào file đó chứ không thực thi target rule1 trong make file vì thế sẽ gây lỗi. Như vậy ta cần có ***.PHONY*** là vì thế.
 
 ví dụ: 
 .PHONY: rule1 rule2 rule3
+
+# .SUFFIXES (sẽ bổ sung sau)
 
 # Phép gán thông thường
 + Giống như cách ta gán giá trị cho một biến trong C, phép gán **:=** trong makefile chính là sử dụng cho tác dụng đó. 
