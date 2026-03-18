@@ -1,5 +1,7 @@
 .PHONY: rule1 rule2 rule3
- 
+
+include abcd.mk
+
 var := "value"
 var3 := "var3"
 
@@ -21,4 +23,3 @@ rule1:
 rule2:
 	@echo "Hi im rule 2"
 
-# include abcd.mk

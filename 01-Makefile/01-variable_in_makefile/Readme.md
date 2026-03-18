@@ -70,3 +70,18 @@ afterChange:
 ```
 + Theo thông thường, ta sẽ nghĩ beforeChange sẽ cho ra kết quả là "var" và afterChange sẽ cho ra kết quả là "changed" vì biến var1 được gán theo kiểu đệ quy. Tuy nhiên:
 + Nếu ta tạo rule như trên, thì khi make rule beforeChange hay afterChange thì kết quả đều sẽ ra như nhau đó là "changed" vì make sẽ đọc toàn bộ file và gán các thứ xong rồi thực thi chứ không thực thi theo kiểu từ trên xuống dưới.
+
+# Quy tắc đặt tên trong Makefile
++ Ta có thể đặt tên theo 3 cách sau:
+    + Đặt là Makefile
+    + đặt là makefile
+    + đặt file có đuôi .mk
++ nếu trong cùng một cấp thư mục có cả 3 thư mục này thì nếu ta gọi ```make``` thì nó sẽ ưu tiên truy cập vào Makefile để xử lý.
++ nếu ta muốn chỉ định make vào file khác không phải file "Makefile" thì ta dùng lệnh sau: ```make -f <tên file> <target>```
++ ví dụ: ta có file abcd.mk và Makefile cùng cấp. Ta muốn build target print1 trong abcd.mk thì ta build như sau: ```make -f abcd.mk print1```
+
+# Sử dụng include
++ giả sử chúng ta chia nhỏ các biến ra thành nhiều makefile hoặc nhiều rule thành nhiều make file khác nhau. Khi này, ta sẽ cần một makefile tổng.
++ Tuy nhiên, các rule hoặc các biến của các makefile khác ta vẫn cần dùng trong makefile tổng tuy nhiên ta không muốn define lại. Vậy thì ta sẽ dùng ***include***.
++ Giống như trong C/C++, nó sẽ đưa toàn bộ rule và biến từ file được include vào file gọi include.
++ Như ví dụ, ta có Makefile và abcd.mk và trong Makefile ta có include abcd.mk. Do ta include ở đầu file nên toàn bộ rule (print1 và print2) sẽ đuọc đặt ở đầu file Makefile, trước tất cả các rule khác. Vì thế nếu ta chỉ gõ ```make``` thì do rule của make là build target đầu tiên trong file nếu chỉ ghi make nên target "print" của abcd.mk được include vào Makefile sẽ được thực thi. Việc vì sao make lại ưu tiên nhảy vào Makefile chứ không phải vào abcd.mk thì xem ở phần **Quy tắc đặt tên trong Makefile** phía bên trên.
