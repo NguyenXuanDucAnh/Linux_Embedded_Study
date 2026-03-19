@@ -12,10 +12,20 @@ var3 ?= $(var)
 
 var := "changed"
 
-rule3:
+rule3: rule1 rule2
 	@echo "$(var1)"
 	@echo "$(var2)"
 	@echo "$(var3)"
+
+# các biến không tường minh
+AutomaticVariables: main.cpp main.c
+	@echo $@
+	@echo $<
+	@echo $?
+	@echo $^
+
+%.c:
+	touch $@
 
 rule1:
 	echo "Hi im rule 1"

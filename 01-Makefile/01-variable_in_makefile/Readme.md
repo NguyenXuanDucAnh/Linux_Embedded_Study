@@ -85,3 +85,61 @@ afterChange:
 + Tuy nhiên, các rule hoặc các biến của các makefile khác ta vẫn cần dùng trong makefile tổng tuy nhiên ta không muốn define lại. Vậy thì ta sẽ dùng ***include***.
 + Giống như trong C/C++, nó sẽ đưa toàn bộ rule và biến từ file được include vào file gọi include.
 + Như ví dụ, ta có Makefile và abcd.mk và trong Makefile ta có include abcd.mk. Do ta include ở đầu file nên toàn bộ rule (print1 và print2) sẽ đuọc đặt ở đầu file Makefile, trước tất cả các rule khác. Vì thế nếu ta chỉ gõ ```make``` thì do rule của make là build target đầu tiên trong file nếu chỉ ghi make nên target "print" của abcd.mk được include vào Makefile sẽ được thực thi. Việc vì sao make lại ưu tiên nhảy vào Makefile chứ không phải vào abcd.mk thì xem ở phần **Quy tắc đặt tên trong Makefile** phía bên trên.
+
+# Các biến đặc biệt trong Makefile (Automatic Variables)
+## biến $@
+- Biến **$@** là biến sử dụng khi ta muốn lấy tên target của rule. Ví dụ:
+```make
+main.c:
+    gcc $@ -o run
+```
+- Như ta thấy ở ví dụ trên, nếu viết tường minh sẽ là ```gcc main.c -o run``` nhưng do ta dùng $@ nên tên target đã được đưa vào tự động.
+
+## biến $< và biến $^
+- Biến này sử dụng để lấy tên của dependence đầu tiên có trong rule. Ví dụ:
+
+```
+print: main.c foo.c
+    @echo $<
+```
+- Như có thể thấy, khi chạy rule print thì màn hình sẽ in ra main.c
+- Ngược lại, nếu ta dùng biến **$^** thì sẽ như sau:
+```
+print: main.c foo.c
+    @echo $^
+```
+- khi này, ta sẽ thấy rằng chúng ta sẽ có phần in ra màn hình là main.c và foo.c (tức là toàn bộ các dependence).
+
+## biến %
++ Chúng ta sử dụng **%** khi ta cần biểu thị nhiều file giống nhau. Ví dụ: ta cần tạo ra các file foo.c foo.h, main.c main.h, library.c, library.h. Vậy nếu thông thường ta sẽ làm như sau:
+```
+all: foo.c main.c library.c foo.h main.h library.h
+
+foo.c:
+    touch $@C
+main.c:
+    touch $@C 
+library.c:
+    touch $@C
+
+foo.h:
+    touch $@C
+main.h:
+    touch $@C 
+library.h:
+    touch $@C
+
+```
++ Như có thể thấy, chúng ta phải tạo ra khá nhiều rule tạo file trong khi nó là lặp đi lặp lại. Vậy ta có thể làm như sau:
+```
+all: foo.c main.c library.c foo.h main.h library.h
+
+%.c:
+    touch $@C
+
+%.h:
+    touch $@C
+
+```
+
++ Hiểu đơn giản rằng khi có một rule thao tác với file .c hoặc file .h thì nó sẽ tự động được tạo (do ta đã gọi touch). 
