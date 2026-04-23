@@ -8,29 +8,74 @@ Mục tiêu: Viết một chương trình có thể nhận tín hiệu đồng t
 Gợi ý: Kết hợp giữa việc bắt tín hiệu và đọc nhập liệu để chương trình linh hoạt hơn.
 
 
-link signal: https://man7.org/linux/man-pages/man2/signal.2.html
+Giải thích: Đây là loại bug gọi là Heisenbug — chạy thử thì không tái hiện, lên production mới chết. Đó là lý do bài tập yêu cầu dùng poll() + signalfd — không phải vì cách cũ luôn sai, mà vì cách mới đảm bảo không bao giờ sai.
 
+link signal: https://man7.org/linux/man-pages/man2/signal.2.html
 */
 
 #include <iostream>
+#include <cstring>
+#include <unistd.h>
+#include <poll.h>
 #include <signal.h>
+#include <sys/signalfd.h>
 
-#include <unistd.h> // -> for alarm
-#include <sys/wait.h>
+int main() {
+    // Bước 1: Chặn SIGINT và SIGTERM — không dùng handler cũ nữa
+    sigset_t mask;
+    // Tạo một "danh sách signal" rỗng (mask = bộ lọc, chưa có gì trong đó)
+    sigemptyset(&mask);
+    // Thêm SIGINT (Ctrl+C) vào danh sách "muốn chặn"
+    sigaddset(&mask, SIGINT);
+    // Thêm SIGTERM (kill) vào danh sách "muốn chặn"
+    sigaddset(&mask, SIGTERM);
+    // Áp dụng danh sách lên process:
+    // SIG_BLOCK = "chặn các signal trong mask lại, đừng cho nhảy vào handler nữa"
+    // Từ đây SIGINT và SIGTERM sẽ bị pending (xếp hàng chờ)
+    // signalfd sẽ là nơi duy nhất đọc chúng ra
+    sigprocmask(SIG_BLOCK, &mask, nullptr);
+    // => bản chất bước này là đưa hai signal vào pending để dùng được với poll()
 
-using namespace std;
+    // Bước 2: Tạo signalfd — signal giờ đây đọc được như file
+    int sfd = signalfd(-1, &mask, 0);
 
+    // Bước 3: Cấu hình poll() theo dõi 2 fd
+    struct pollfd fds[2];
+    fds[0].fd     = STDIN_FILENO;  // bàn phím
+    fds[0].events = POLLIN;
+    fds[1].fd     = sfd;           // signal
+    fds[1].events = POLLIN;
 
-// signal handler
-void handler_SIGTSTP (int sig)
-{    
-}
+    std::cout << "Đang chờ... (Ctrl+C = SIGINT, kill = SIGTERM)\n";
 
-int main (int argv, char * argc[]){
+    while (true) {
+        int ready = poll(fds, 2, -1);
+        if (ready < 0) break;
 
-    cout << "waiting for signal" << endl;
-    cout << "Main PID:" << getpid() << endl;
+        // Bàn phím có data
+        if (fds[0].revents & POLLIN) {
+            std::string line;
+            std::getline(std::cin, line);
+            std::cout << "Bạn nhập: " << line << "\n";
+        }
 
+        // Có signal đến
+        if (fds[1].revents & POLLIN) {
+            struct signalfd_siginfo info;
+            read(sfd, &info, sizeof(info));  // đọc signal như đọc file
 
-    exit(EXIT_SUCCESS);
+            if (info.ssi_signo == SIGINT) {
+                std::cout << "SIGINT received.\n";
+                // KHÔNG thoát, tiếp tục vòng lặp
+            }
+            else if (info.ssi_signo == SIGTERM) {
+                std::cout << "SIGTERM received. Thoát.\n";
+                break;
+            }
+            std::cout << "thực hiện xong even signal" << std::endl;
+        }
+    }
+
+    close(sfd);
+    return 0;
 }
