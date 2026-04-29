@@ -8,6 +8,8 @@
 #include <arpa/inet.h> // for inet_addr
 #include "include/help.h"
 
+using namespace std;
+
 #define NUM_THREAD 2
 std::string listThreadName[NUM_THREAD+1] = {"SERVER_THREAD", "CLIENT_THREAD"};
 enum {
@@ -21,8 +23,8 @@ void serverListener (){
     std::cout << "I'm server" << std::endl;
     /*Step 1: create socket file desciptor*/
     // int socket(int domain, int type, int protocol);
-    int fd_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd_socket < 0)
+    int fdServer = socket(AF_INET, SOCK_STREAM, 0);
+    if (fdServer < 0)
     {
         perror ("error when create socket");
     }
@@ -44,15 +46,15 @@ void serverListener (){
     serverAdrr.sin_family = AF_INET;
     serverAdrr.sin_port = htons(8080);
 
-    int bindRet = bind(fd_socket, (struct sockaddr *)&serverAdrr, sizeof (serverAdrr));
+    int bindRet = bind(fdServer, (struct sockaddr *)&serverAdrr, sizeof (serverAdrr));
     if (bindRet < 0)
     {
         perror ("error when bind socket");
     }
     /* Step 3: Listen*/
     // int listen(int sockfd, int backlog);
-    int listenRet = listen(fd_socket, BACKLOG_NUM);
-    if (bindRet < 0)
+    int listenRet = listen(fdServer, BACKLOG_NUM);
+    if (listenRet < 0)
     {
         perror ("error when listen socket");
     }
@@ -61,33 +63,35 @@ void serverListener (){
 
     struct sockaddr_in peerAddr;
     socklen_t socketLen = sizeof (peerAddr);
-    int fd_accepted = accept(fd_socket, (struct sockaddr *)&peerAddr, &socketLen);
-    if (fd_accepted < 0)
+    int fdClient = accept(fdServer, (struct sockaddr *)&peerAddr, &socketLen);
+    if (fdClient < 0)
     {
         perror ("error when accept socket");
     }  
+
+    cout << "Client addr:" << inet_ntoa(peerAddr.sin_addr) << endl;
 
     char buffer[1024] = {0};
     while (1)
     {
         // 5. Nhận dữ liệu
-        int bytes = read(fd_accepted, buffer, 1024);
+        int bytes = read(fdClient, buffer, 1024);
         if (bytes > 0) {
             printf("Server Received: %s\n", buffer);
         }
 
         // 6. Gửi phản hồi
         const char *msg = "Hello from server!";
-        write(fd_accepted, msg, strlen(msg));
+        write(fdClient, msg, strlen(msg));
     }
 
     // 7. Đóng socket
-    close(fd_accepted);
-    close(fd_socket);
+    close(fdClient);
+    close(fdServer);
 }
 
 void clientListener (){
-    sleep (5);
+    sleep (2);
     std::cout << "I'm client" << std::endl;
 
     /*Step 1: create socket file desciptor*/
@@ -111,6 +115,7 @@ void clientListener (){
     {
         perror ("error when connect socket");
     }
+
 
     const char *msg = "Hello from Client!";
     write(fd_socket, msg, strlen(msg));
