@@ -7,6 +7,7 @@
 #include <unistd.h> // => for read/write
 #include <arpa/inet.h> // for inet_addr
 #include "include/help.h"
+#include "include/socket.h"
 
 using namespace std;
 
@@ -21,73 +22,19 @@ enum {
 #define BACKLOG_NUM 10
 void serverListener (){
     std::cout << "I'm server" << std::endl;
-    /*Step 1: create socket file desciptor*/
-    // int socket(int domain, int type, int protocol);
-    int fdServer = socket(AF_INET, SOCK_STREAM, 0);
-    if (fdServer < 0)
-    {
-        perror ("error when create socket");
-    }
-    /* Step 2: bind action: When a socket is created with socket(2), it exists in a name space
-       (address family) but has no address assigned to it.  bind()
-       assigns the address specified by addr to the socket referred to by
-       the file descriptor sockfd*/
-    // int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-    
-    // declare struct sockaddr_in to define attribute of socket (ip, port)
-    //  struct sockaddr_in {
-    //        sa_family_t     sin_family;     /* AF_INET */
-    //        in_port_t       sin_port;       /* Port number */
-    //        struct in_addr  sin_addr;       /* IPv4 address */
-    //    };
-    
-    struct sockaddr_in serverAdrr; // using ipv4, if you want to use IPV6, let get struct sockaddr_in6
-    serverAdrr.sin_addr.s_addr = INADDR_ANY; // auto get Ip of device, not hardcode
-    serverAdrr.sin_family = AF_INET;
-    serverAdrr.sin_port = htons(8080);
+    serverSocket server(8080);
 
-    int bindRet = bind(fdServer, (struct sockaddr *)&serverAdrr, sizeof (serverAdrr));
-    if (bindRet < 0)
-    {
-        perror ("error when bind socket");
-    }
-    /* Step 3: Listen*/
-    // int listen(int sockfd, int backlog);
-    int listenRet = listen(fdServer, BACKLOG_NUM);
-    if (listenRet < 0)
-    {
-        perror ("error when listen socket");
-    }
-    /* Step 4: Accept*/
-    // int accept(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen);
+    server.serverAccept();
 
-    struct sockaddr_in peerAddr;
-    socklen_t socketLen = sizeof (peerAddr);
-    int fdClient = accept(fdServer, (struct sockaddr *)&peerAddr, &socketLen);
-    if (fdClient < 0)
-    {
-        perror ("error when accept socket");
-    }  
-
-    cout << "Client addr:" << inet_ntoa(peerAddr.sin_addr) << endl;
-
-    char buffer[1024] = {0};
-    while (1)
-    {
-        // 5. Nhận dữ liệu
-        int bytes = read(fdClient, buffer, 1024);
-        if (bytes > 0) {
-            printf("Server Received: %s\n", buffer);
+    while (1){
+        cout << "Waiting request form client" << endl;
+        char requestFromClient[2048];
+        if (server.waitRequestFromClient(1, requestFromClient) > 0){
+            cout << "request from client:" << requestFromClient << endl;
+            server.sendMsgToClient ("ducanhdeptrai1234 server 67890");
         }
-
-        // 6. Gửi phản hồi
-        const char *msg = "Hello from server!";
-        write(fdClient, msg, strlen(msg));
+        sleep (2);
     }
-
-    // 7. Đóng socket
-    close(fdClient);
-    close(fdServer);
 }
 
 void clientListener (){
